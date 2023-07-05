@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:flutter/cupertino.dart';
 import 'package:path/path.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:record_mp3/record_mp3.dart';
 import 'package:uuid/uuid.dart';
 
@@ -33,11 +34,8 @@ class SoundRecordNotifier extends ChangeNotifier {
   /// else still false
   bool isShow = false;
 
-  /// to show second of recording
-  late int second;
-
-  /// to show minute of recording
-  late int minute;
+  /// time of recording in milliseconds
+  late int time;
 
   /// to know if pressed the button
   late bool buttonPressed;
@@ -60,8 +58,7 @@ class SoundRecordNotifier extends ChangeNotifier {
   // ignore: sort_constructors_first
   SoundRecordNotifier({
     this.edge = 0.0,
-    this.minute = 0,
-    this.second = 0,
+    this.time = 0,
     this.buttonPressed = false,
     this.loopActive = false,
     this.mPath = '',
@@ -72,7 +69,7 @@ class SoundRecordNotifier extends ChangeNotifier {
 
   /// To increase counter after 1 second
   void _mapCounterGenerator() {
-    _timerCounter = Timer(const Duration(seconds: 1), () {
+    _timerCounter = Timer(const Duration(milliseconds: 10), () {
       _increaseCounterWhilePressed();
       _mapCounterGenerator();
     });
@@ -83,8 +80,7 @@ class SoundRecordNotifier extends ChangeNotifier {
     isLocked = false;
     edge = 0;
     buttonPressed = false;
-    second = 0;
-    minute = 0;
+    time = 0;
     isShow = false;
     key = GlobalKey();
     heightPosition = 0;
@@ -178,13 +174,8 @@ class SoundRecordNotifier extends ChangeNotifier {
 
     loopActive = true;
 
-    second = second + 1;
+    time += 10;
     buttonPressed = buttonPressed;
-    if (second == 60) {
-      second = 0;
-      minute = minute + 1;
-    }
-
     notifyListeners();
     loopActive = false;
     notifyListeners();
@@ -194,7 +185,9 @@ class SoundRecordNotifier extends ChangeNotifier {
   record() async {
     buttonPressed = true;
     _timer = Timer(const Duration(milliseconds: 900), () async {
-      RecordMp3.instance.start(await getFilePath(), print);
+      RecordMp3.instance.start(await getFilePath(),(recordErrorType){
+        debugPrint(recordErrorType.toString());
+      });
     });
     _mapCounterGenerator();
     notifyListeners();
@@ -204,4 +197,39 @@ class SoundRecordNotifier extends ChangeNotifier {
   voidInitialSound() async {
     startRecord = false;
   }
+
+  Future<bool> checkPermissions() async {
+    PermissionStatus storagePermission = await Permission.storage.status;
+    PermissionStatus microphonePermission = await Permission.microphone.status;
+    List<Permission> permissionList = [];
+
+    if (storagePermission != PermissionStatus.granted) {
+      permissionList.add(Permission.storage);
+    }
+    if (microphonePermission != PermissionStatus.granted) {
+      permissionList.add(Permission.microphone);
+    }
+    if (permissionList.isNotEmpty) {
+      Map<Permission, PermissionStatus> statuses =
+      await permissionList.request();
+
+      int i = 0;
+      statuses.forEach((key, value) {
+        PermissionStatus? status = statuses[key];
+        if (status == PermissionStatus.granted) {
+          i++;
+        }
+      });
+      return false;
+      if (i == statuses.length) {
+        return true;
+      } else {
+        return false;
+      }
+    } else {
+      return true;
+    }
+  }
+
+
 }

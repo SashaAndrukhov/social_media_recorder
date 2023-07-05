@@ -17,6 +17,8 @@ class SoundRecorderWhenLockedDesign extends StatelessWidget {
   final Color? counterBackGroundColor;
   final Color? cancelTextBackGroundColor;
   final Widget? sendButtonIcon;
+  final Widget? counterIcon;
+
   // ignore: sort_constructors_first
   const SoundRecorderWhenLockedDesign({
     Key? key,
@@ -30,12 +32,13 @@ class SoundRecorderWhenLockedDesign extends StatelessWidget {
     required this.recordIconWhenLockBackGroundColor,
     required this.counterBackGroundColor,
     required this.cancelTextBackGroundColor,
+    this.counterIcon,
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      width: MediaQuery.of(context).size.width,
+      width: MediaQuery.of(context).size.width-42,
       decoration: BoxDecoration(
         color: cancelTextBackGroundColor ?? Colors.grey.shade100,
         borderRadius: const BorderRadius.only(
@@ -53,8 +56,7 @@ class SoundRecorderWhenLockedDesign extends StatelessWidget {
             InkWell(
               onTap: () async {
                 soundRecordNotifier.isShow = false;
-                if (soundRecordNotifier.second > 1 ||
-                    soundRecordNotifier.minute > 0) {
+                if (soundRecordNotifier.time >= 100) {
                   String path = soundRecordNotifier.mPath;
                   await Future.delayed(const Duration(milliseconds: 500));
                   sendRequestFunction(File.fromUri(Uri(path: path)));
@@ -73,7 +75,7 @@ class SoundRecorderWhenLockedDesign extends StatelessWidget {
                     child: Container(
                       color: recordIconWhenLockBackGroundColor,
                       child: Padding(
-                        padding: const EdgeInsets.all(4.0),
+                        padding: const EdgeInsets.all(14.0),
                         child: recordIconWhenLockedRecord ??
                             sendButtonIcon ??
                             Icon(
@@ -90,6 +92,7 @@ class SoundRecorderWhenLockedDesign extends StatelessWidget {
                 ),
               ),
             ),
+            const SizedBox(width: 10,),
             Expanded(
               child: InkWell(
                   onTap: () {
@@ -114,6 +117,7 @@ class SoundRecorderWhenLockedDesign extends StatelessWidget {
               soundRecorderState: soundRecordNotifier,
               counterTextStyle: counterTextStyle,
               counterBackGroundColor: counterBackGroundColor,
+              counterIcon: counterIcon,
             ),
           ],
         ),
