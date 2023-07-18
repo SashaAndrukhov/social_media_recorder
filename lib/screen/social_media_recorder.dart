@@ -73,6 +73,8 @@ class SocialMediaRecorder extends StatefulWidget {
   // use it to change send button when user lock the record
   final Widget? sendButtonIcon;
 
+  final bool recordOnLongPress;
+
   // ignore: sort_constructors_first
   const SocialMediaRecorder({
     this.sendButtonIcon,
@@ -96,6 +98,7 @@ class SocialMediaRecorder extends StatefulWidget {
     this.cancelText = "Cancel",
     this.cancelTextBackGroundColor,
     this.radius,
+    this.recordOnLongPress = false,
     Key? key,
   }) : super(key: key);
 
@@ -175,38 +178,71 @@ class _SocialMediaRecorder extends State<SocialMediaRecorder> {
                 backgroundColor: widget.lockWidgetBackGroundColor,
                 borderRadius: widget.lockWidgetBorderRadius,
                 lockIcon: widget.lockButtonWhenLock,
-
               ),
             )
-
           ],
         ),
       );
     }
     return GestureDetector(
-      onLongPressStart: (details) async{
-        bool isPermissionGranted = await state.checkPermissions();
-        if(isPermissionGranted){
-          state.setNewInitialDraggableHeight(details.globalPosition.dy);
-          state.resetEdgePadding();
-          soundRecordNotifier.isShow = true;
-          state.record();
-        }
-      },
-      onLongPressMoveUpdate: (details) {
-        state.updateScrollValue(details.globalPosition, context);
-      },
-      onLongPressEnd: (details) {
-        if (!state.isLocked) {
-          if (state.buttonPressed) {
-            if (state.time >= 100) {
-              String path = state.mPath;
-              widget.sendRequestFunction(File.fromUri(Uri(path: path)));
+      onLongPressStart: widget.recordOnLongPress
+          ? (details) async {
+              bool isPermissionGranted = await state.checkPermissions();
+              if (isPermissionGranted) {
+                state.setNewInitialDraggableHeight(details.globalPosition.dy);
+                state.resetEdgePadding();
+                soundRecordNotifier.isShow = true;
+                state.record();
+              }
             }
-          }
-          state.resetEdgePadding();
-        }
-      },
+          : null,
+      onLongPressMoveUpdate: widget.recordOnLongPress
+          ? (details) {
+              state.updateScrollValue(details.globalPosition, context);
+            }
+          : null,
+      onLongPressEnd: widget.recordOnLongPress
+          ? (details) {
+              if (!state.isLocked) {
+                if (state.buttonPressed) {
+                  if (state.time >= 100) {
+                    String path = state.mPath;
+                    widget.sendRequestFunction(File.fromUri(Uri(path: path)));
+                  }
+                }
+                state.resetEdgePadding();
+              }
+            }
+          : null,
+      onHorizontalDragUpdate: !widget.recordOnLongPress
+          ? (scrollEnd) {
+              state.updateScrollValue(scrollEnd.globalPosition, context);
+            }
+          : null,
+      onTapDown: !widget.recordOnLongPress
+          ? (details) async {
+              bool isPermissionGranted = await state.checkPermissions();
+              if (isPermissionGranted) {
+                state.setNewInitialDraggableHeight(details.globalPosition.dy);
+                state.resetEdgePadding();
+                soundRecordNotifier.isShow = true;
+                state.record();
+              }
+            }
+          : null,
+      onTapUp: !widget.recordOnLongPress
+          ? (details) async {
+              if (!state.isLocked) {
+                if (state.buttonPressed) {
+                  if (state.time >= 100) {
+                    String path = state.mPath;
+                    widget.sendRequestFunction(File.fromUri(Uri(path: path)));
+                  }
+                }
+                state.resetEdgePadding();
+              }
+            }
+          : null,
       child: AnimatedContainer(
         duration: Duration(milliseconds: soundRecordNotifier.isShow ? 0 : 300),
         height: state.buttonPressed ? 60 : 40,
