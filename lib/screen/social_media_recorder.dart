@@ -2,6 +2,7 @@ library social_media_recorder;
 
 import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:social_media_recorder/provider/sound_record_notifier.dart';
 import 'package:social_media_recorder/widgets/lock_record.dart';
@@ -221,6 +222,7 @@ class _SocialMediaRecorder extends State<SocialMediaRecorder> {
           : null,
       onTapDown: !widget.recordOnLongPress
           ? (details) async {
+              HapticFeedback.mediumImpact();
               bool isPermissionGranted = await state.checkPermissions();
               if (isPermissionGranted) {
                 state.setNewInitialDraggableHeight(details.globalPosition.dy);
