@@ -10,13 +10,13 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  uuid: ^3.0.7
+  uuid: ^4.0.1
   animated_text_kit: ^4.2.2
   path_provider: ^2.0.14
   provider: ^6.0.5
   record_mp3: ^3.0.0
   path: ^1.8.2
-  permission_handler: ^10.0.0
+  permission_handler: ^11.0.0
 
 dev_dependencies:
   flutter_test:
