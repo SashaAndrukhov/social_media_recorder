@@ -78,6 +78,8 @@ class SocialMediaRecorder extends StatefulWidget {
 
   final Function(bool)? onRecord;
 
+  final Color? containerBackgroundColor;
+
   // ignore: sort_constructors_first
   const SocialMediaRecorder({
     this.sendButtonIcon,
@@ -103,6 +105,7 @@ class SocialMediaRecorder extends StatefulWidget {
     this.radius,
     this.recordOnLongPress = false,
     this.onRecord,
+    this.containerBackgroundColor,
     Key? key,
   }) : super(key: key);
 
@@ -262,10 +265,14 @@ class _SocialMediaRecorder extends State<SocialMediaRecorder> {
           : null,
       child: AnimatedContainer(
         duration: Duration(milliseconds: soundRecordNotifier.isShow ? 0 : 300),
-        height: state.buttonPressed ? 60 : 40,
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(22),
+          color: widget.containerBackgroundColor,
+        ),
+        height: state.buttonPressed ? 60 : 44,
         width: (soundRecordNotifier.isShow)
             ? MediaQuery.of(context).size.width - 42
-            : 24,
+            : 44,
         child: Stack(
           children: [
             Padding(
