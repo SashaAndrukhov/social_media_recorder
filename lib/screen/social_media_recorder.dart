@@ -76,6 +76,8 @@ class SocialMediaRecorder extends StatefulWidget {
 
   final bool recordOnLongPress;
 
+  final Function(bool)? onRecord;
+
   // ignore: sort_constructors_first
   const SocialMediaRecorder({
     this.sendButtonIcon,
@@ -100,6 +102,7 @@ class SocialMediaRecorder extends StatefulWidget {
     this.cancelTextBackGroundColor,
     this.radius,
     this.recordOnLongPress = false,
+    this.onRecord,
     Key? key,
   }) : super(key: key);
 
@@ -190,6 +193,9 @@ class _SocialMediaRecorder extends State<SocialMediaRecorder> {
           ? (details) async {
               bool isPermissionGranted = await state.checkPermissions();
               if (isPermissionGranted) {
+                if (widget.onRecord != null) {
+                  widget.onRecord!(soundRecordNotifier.buttonPressed);
+                }
                 state.setNewInitialDraggableHeight(details.globalPosition.dy);
                 state.resetEdgePadding();
                 soundRecordNotifier.isShow = true;
@@ -206,6 +212,9 @@ class _SocialMediaRecorder extends State<SocialMediaRecorder> {
           ? (details) {
               if (!state.isLocked) {
                 if (state.buttonPressed) {
+                  if (widget.onRecord != null) {
+                    widget.onRecord!(soundRecordNotifier.buttonPressed);
+                  }
                   if (state.time >= 100) {
                     String path = state.mPath;
                     widget.sendRequestFunction(File.fromUri(Uri(path: path)));
@@ -225,6 +234,9 @@ class _SocialMediaRecorder extends State<SocialMediaRecorder> {
               HapticFeedback.mediumImpact();
               bool isPermissionGranted = await state.checkPermissions();
               if (isPermissionGranted) {
+                if (widget.onRecord != null) {
+                  widget.onRecord!(soundRecordNotifier.buttonPressed);
+                }
                 state.setNewInitialDraggableHeight(details.globalPosition.dy);
                 state.resetEdgePadding();
                 soundRecordNotifier.isShow = true;
@@ -236,6 +248,9 @@ class _SocialMediaRecorder extends State<SocialMediaRecorder> {
           ? (details) async {
               if (!state.isLocked) {
                 if (state.buttonPressed) {
+                  if (widget.onRecord != null) {
+                    widget.onRecord!(soundRecordNotifier.buttonPressed);
+                  }
                   if (state.time >= 100) {
                     String path = state.mPath;
                     widget.sendRequestFunction(File.fromUri(Uri(path: path)));
