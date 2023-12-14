@@ -76,6 +76,10 @@ class SocialMediaRecorder extends StatefulWidget {
 
   final bool recordOnLongPress;
 
+  final Function(bool)? onRecord;
+
+  final Color? containerBackgroundColor;
+
   // ignore: sort_constructors_first
   const SocialMediaRecorder({
     this.sendButtonIcon,
@@ -100,6 +104,8 @@ class SocialMediaRecorder extends StatefulWidget {
     this.cancelTextBackGroundColor,
     this.radius,
     this.recordOnLongPress = false,
+    this.onRecord,
+    this.containerBackgroundColor,
     Key? key,
   }) : super(key: key);
 
@@ -190,6 +196,9 @@ class _SocialMediaRecorder extends State<SocialMediaRecorder> {
           ? (details) async {
               bool isPermissionGranted = await state.checkPermissions();
               if (isPermissionGranted) {
+                if (widget.onRecord != null) {
+                  widget.onRecord!(soundRecordNotifier.buttonPressed);
+                }
                 state.setNewInitialDraggableHeight(details.globalPosition.dy);
                 state.resetEdgePadding();
                 soundRecordNotifier.isShow = true;
@@ -206,6 +215,9 @@ class _SocialMediaRecorder extends State<SocialMediaRecorder> {
           ? (details) {
               if (!state.isLocked) {
                 if (state.buttonPressed) {
+                  if (widget.onRecord != null) {
+                    widget.onRecord!(soundRecordNotifier.buttonPressed);
+                  }
                   if (state.time >= 100) {
                     String path = state.mPath;
                     widget.sendRequestFunction(File.fromUri(Uri(path: path)));
@@ -225,6 +237,9 @@ class _SocialMediaRecorder extends State<SocialMediaRecorder> {
               HapticFeedback.mediumImpact();
               bool isPermissionGranted = await state.checkPermissions();
               if (isPermissionGranted) {
+                if (widget.onRecord != null) {
+                  widget.onRecord!(soundRecordNotifier.buttonPressed);
+                }
                 state.setNewInitialDraggableHeight(details.globalPosition.dy);
                 state.resetEdgePadding();
                 soundRecordNotifier.isShow = true;
@@ -236,6 +251,9 @@ class _SocialMediaRecorder extends State<SocialMediaRecorder> {
           ? (details) async {
               if (!state.isLocked) {
                 if (state.buttonPressed) {
+                  if (widget.onRecord != null) {
+                    widget.onRecord!(soundRecordNotifier.buttonPressed);
+                  }
                   if (state.time >= 100) {
                     String path = state.mPath;
                     widget.sendRequestFunction(File.fromUri(Uri(path: path)));
@@ -247,10 +265,14 @@ class _SocialMediaRecorder extends State<SocialMediaRecorder> {
           : null,
       child: AnimatedContainer(
         duration: Duration(milliseconds: soundRecordNotifier.isShow ? 0 : 300),
-        height: state.buttonPressed ? 60 : 40,
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(22),
+          color: widget.containerBackgroundColor,
+        ),
+        height: state.buttonPressed ? 60 : 44,
         width: (soundRecordNotifier.isShow)
             ? MediaQuery.of(context).size.width - 42
-            : 24,
+            : 44,
         child: Stack(
           children: [
             Padding(
