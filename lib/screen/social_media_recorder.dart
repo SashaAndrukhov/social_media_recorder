@@ -139,6 +139,10 @@ class _SocialMediaRecorder extends State<SocialMediaRecorder> {
         ],
         child: Consumer<SoundRecordNotifier>(
           builder: (context, value, _) {
+            if (widget.onRecord != null) {
+              WidgetsBinding.instance
+                  .addPostFrameCallback((_) => widget.onRecord!(value.isShow));
+            }
             return Directionality(
                 textDirection: TextDirection.rtl, child: makeBody(value));
           },
@@ -237,13 +241,14 @@ class _SocialMediaRecorder extends State<SocialMediaRecorder> {
               HapticFeedback.mediumImpact();
               bool isPermissionGranted = await state.checkPermissions();
               if (isPermissionGranted) {
-                if (widget.onRecord != null) {
-                  widget.onRecord!(soundRecordNotifier.buttonPressed);
-                }
+
                 state.setNewInitialDraggableHeight(details.globalPosition.dy);
                 state.resetEdgePadding();
                 soundRecordNotifier.isShow = true;
                 state.record();
+                if (widget.onRecord != null) {
+                  widget.onRecord!(true);
+                }
               }
             }
           : null,
@@ -251,15 +256,16 @@ class _SocialMediaRecorder extends State<SocialMediaRecorder> {
           ? (details) async {
               if (!state.isLocked) {
                 if (state.buttonPressed) {
-                  if (widget.onRecord != null) {
-                    widget.onRecord!(soundRecordNotifier.buttonPressed);
-                  }
+
                   if (state.time >= 100) {
                     String path = state.mPath;
                     widget.sendRequestFunction(File.fromUri(Uri(path: path)));
                   }
                 }
                 state.resetEdgePadding();
+                if (widget.onRecord != null) {
+                  widget.onRecord!(false);
+                }
               }
             }
           : null,
