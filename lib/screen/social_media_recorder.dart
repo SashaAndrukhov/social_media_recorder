@@ -139,10 +139,6 @@ class _SocialMediaRecorder extends State<SocialMediaRecorder> {
         ],
         child: Consumer<SoundRecordNotifier>(
           builder: (context, value, _) {
-            if (widget.onRecord != null) {
-              WidgetsBinding.instance
-                  .addPostFrameCallback((_) => widget.onRecord!(value.isShow));
-            }
             return Directionality(
                 textDirection: TextDirection.rtl, child: makeBody(value));
           },
@@ -210,11 +206,6 @@ class _SocialMediaRecorder extends State<SocialMediaRecorder> {
               }
             }
           : null,
-      onLongPressMoveUpdate: widget.recordOnLongPress
-          ? (details) {
-              state.updateScrollValue(details.globalPosition, context);
-            }
-          : null,
       onLongPressEnd: widget.recordOnLongPress
           ? (details) {
               if (!state.isLocked) {
@@ -231,53 +222,15 @@ class _SocialMediaRecorder extends State<SocialMediaRecorder> {
               }
             }
           : null,
-      onHorizontalDragUpdate: !widget.recordOnLongPress
-          ? (scrollEnd) {
-              state.updateScrollValue(scrollEnd.globalPosition, context);
-            }
-          : null,
-      onTapDown: !widget.recordOnLongPress
-          ? (details) async {
-              HapticFeedback.mediumImpact();
-              bool isPermissionGranted = await state.checkPermissions();
-              if (isPermissionGranted) {
-
-                state.setNewInitialDraggableHeight(details.globalPosition.dy);
-                state.resetEdgePadding();
-                soundRecordNotifier.isShow = true;
-                state.record();
-                if (widget.onRecord != null) {
-                  widget.onRecord!(true);
-                }
-              }
-            }
-          : null,
-      onTapUp: !widget.recordOnLongPress
-          ? (details) async {
-              if (!state.isLocked) {
-                if (state.buttonPressed) {
-
-                  if (state.time >= 100) {
-                    String path = state.mPath;
-                    widget.sendRequestFunction(File.fromUri(Uri(path: path)));
-                  }
-                }
-                state.resetEdgePadding();
-                if (widget.onRecord != null) {
-                  widget.onRecord!(false);
-                }
-              }
-            }
-          : null,
       child: AnimatedContainer(
         duration: Duration(milliseconds: soundRecordNotifier.isShow ? 0 : 300),
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(22),
           color: widget.containerBackgroundColor,
         ),
-        height: state.buttonPressed ? 60 : 44,
+        height: 44,
         width: (soundRecordNotifier.isShow)
-            ? MediaQuery.of(context).size.width - 42
+            ? MediaQuery.of(context).size.width - 92
             : 44,
         child: Stack(
           children: [
@@ -301,7 +254,7 @@ class _SocialMediaRecorder extends State<SocialMediaRecorder> {
                       shouldShowText: soundRecordNotifier.isShow,
                       soundRecorderState: state,
                       slideToCancelTextStyle: widget.slideToCancelTextStyle,
-                      slideToCancelText: widget.slideToCancelText,
+                      slideToCancelText: '',
                     ),
                     if (soundRecordNotifier.isShow)
                       ShowCounter(
@@ -313,17 +266,6 @@ class _SocialMediaRecorder extends State<SocialMediaRecorder> {
                 ),
               ),
             ),
-            Container(
-              width: 38,
-              height: 88,
-              margin: const EdgeInsets.only(right: 5),
-              child: LockRecord(
-                backgroundColor: widget.lockWidgetBackGroundColor,
-                borderRadius: widget.lockWidgetBorderRadius,
-                soundRecorderState: state,
-                lockIcon: widget.lockButton,
-              ),
-            )
           ],
         ),
       ),
