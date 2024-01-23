@@ -222,6 +222,35 @@ class _SocialMediaRecorder extends State<SocialMediaRecorder> {
               }
             }
           : null,
+      onTap: !soundRecordNotifier.isShow
+          ? () async {
+              bool isPermissionGranted = await state.checkPermissions();
+              if (isPermissionGranted) {
+                HapticFeedback.heavyImpact();
+                if (widget.onRecord != null) {
+                  widget.onRecord!(soundRecordNotifier.buttonPressed);
+                }
+                state.resetEdgePadding();
+                soundRecordNotifier.isShow = true;
+                state.record();
+              }
+            }
+          : () {
+              HapticFeedback.heavyImpact();
+              if (!state.isLocked) {
+                if (state.buttonPressed) {
+                  if (widget.onRecord != null) {
+                    widget.onRecord!(soundRecordNotifier.buttonPressed);
+                  }
+                  if (state.time >= 100) {
+                    String path = state.mPath;
+                    widget.sendRequestFunction(File.fromUri(Uri(path: path)));
+                  }
+                }
+                state.resetEdgePadding();
+                soundRecordNotifier.isShow = false;
+              }
+            },
       child: AnimatedContainer(
         duration: Duration(milliseconds: soundRecordNotifier.isShow ? 0 : 300),
         decoration: BoxDecoration(
